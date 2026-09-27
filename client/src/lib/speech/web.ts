@@ -1,44 +1,12 @@
-export type SpeechStatus = 'idle' | 'playing' | 'paused' | 'ended';
+import type { SpeechController, SpeechStatus } from './types';
+import { splitIntoSentences, toSpeechText } from './utils';
 
-export const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2] as const;
-
-const ONES = [
-  'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
-  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
-  'seventeen', 'eighteen', 'nineteen',
-];
-
-const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-
-function integerToWords(n: number): string {
-  if (n < 20) return ONES[n];
-  if (n < 100) {
-    const t = Math.floor(n / 10);
-    const o = n % 10;
-    return TENS[t] + (o ? ` ${ONES[o]}` : '');
-  }
-  return String(n);
-}
-
-function toSpeechText(text: string): string {
-  return text.replace(/(\d+)\.(\d+)/g, (_match, intPart: string, decPart: string) => {
-    const integer = integerToWords(Number(intPart));
-    const decimals = Array.from(decPart)
-      .map((d) => ONES[Number(d)] ?? d)
-      .join(' ');
-    return `${integer} point ${decimals}`;
-  });
-}
-
-export function splitIntoSentences(text: string): string[] {
-  return text
-    .split(/(?<=[.!?])\s+|\n+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+function isWebSpeechSupported(): boolean {
+  return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
 function pickEnglishVoice(): SpeechSynthesisVoice | null {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
+  if (!isWebSpeechSupported()) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
   return (
@@ -49,7 +17,7 @@ function pickEnglishVoice(): SpeechSynthesisVoice | null {
   );
 }
 
-export class SpeechController {
+export class WebSpeechController implements SpeechController {
   private chunks: string[] = [];
   private index = 0;
   private charOffset = 0;
@@ -62,7 +30,7 @@ export class SpeechController {
   private listeners = new Set<() => void>();
 
   constructor() {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    if (isWebSpeechSupported()) {
       this.voice = pickEnglishVoice();
       window.speechSynthesis.addEventListener?.('voiceschanged', () => {
         this.voice = pickEnglishVoice();
@@ -78,12 +46,12 @@ export class SpeechController {
     return this._rate;
   }
 
-  get currentIndex(): number {
-    return this.index;
+  get supported(): boolean {
+    return isWebSpeechSupported();
   }
 
-  get totalChunks(): number {
-    return this.chunks.length;
+  get languageReady(): boolean {
+    return true;
   }
 
   subscribe(cb: () => void): () => void {
@@ -243,5 +211,9 @@ export class SpeechController {
     } else {
       this.emit();
     }
+  }
+
+  openInstall(): void {
+    // No-op on web.
   }
 }

@@ -6,10 +6,25 @@ interface Props {
 }
 
 export default function SpeechControls({ text }: Props) {
-  const { status, rate, play, pause, resume, stop, setRate, supported } = useSpeech(text);
+  const { status, rate, languageReady, supported, play, pause, resume, stop, setRate, openInstall } =
+    useSpeech(text);
 
   if (!supported) {
     return <p className="text-sm text-slate-400">当前浏览器不支持朗读功能，请使用 Chrome 或 Edge。</p>;
+  }
+
+  if (languageReady === false) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="text-sm text-amber-600">当前设备缺少英文语音包，无法朗读。</p>
+        <button
+          onClick={openInstall}
+          className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+        >
+          安装英文语音
+        </button>
+      </div>
+    );
   }
 
   const isPlaying = status === 'playing';

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ReadCraft</string>
+    <string name="title_activity_main">ReadCraft</string>
+    <string name="package_name">com.readcraft.app</string>
+    <string name="custom_url_scheme">com.readcraft.app</string>
+</resources>

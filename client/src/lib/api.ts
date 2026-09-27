@@ -8,8 +8,10 @@ interface ErrorResponse {
   error?: { code?: string; message?: string };
 }
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/+$/, '');
+
 export async function analyzeArticle(text: string): Promise<AnalysisResult> {
-  const res = await fetch('/api/analyze', {
+  const res = await fetch(`${API_BASE_URL}/api/analyze`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text }),
