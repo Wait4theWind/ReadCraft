@@ -1,5 +1,5 @@
-import { AnalysisResultSchema, type AnalysisResult } from './types.js';
-import { buildSystemPrompt } from './prompt.js';
+import { AnalysisResultSchema, type AnalysisResult } from './types';
+import { buildSystemPrompt } from './prompt';
 
 const MAX_RETRIES = 2;
 

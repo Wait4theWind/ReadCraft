@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
-import { analyzeArticle } from './analyze.js';
+import { analyzeArticle } from './analyze';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
